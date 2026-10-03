@@ -27,6 +27,10 @@ Pour changer de mois, il suffit de modifier trois lignes en haut du fichier. Les
 \newcommand{\ndays}{30}    % nombre de jours du mois
 ```
 
+## 1 mois grille - Month grid
+
+Pour retirer les étiquettes AM et PM tout en gardant les teintes, mettez `\showampmfalse` à la place de `\showampmtrue` en haut du fichier. Les trois couleurs de l'après-midi (`pmpaper, pmcream, pmoff`) se règlent juste en dessous des autres couleurs. Si la différence vous paraît trop forte ou trop faible à l'impression, ce sont elles qu'il faut ajuster.
+
 ## 7 mois - Months
 
 Ce sont des mois génériques.
