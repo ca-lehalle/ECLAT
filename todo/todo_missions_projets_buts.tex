@@ -1,0 +1,104 @@
+% ------------------------------------------------------------------
+%  To-do multi-échelles "Surf & Armorique" : Missions / Projets / Buts
+%  2 listes en paysage, l'une au-dessus de l'autre, sur une page A4 portrait.
+%  Compiler avec : pdflatex todo_missions_projets_buts.tex
+%
+%  Lecture : chaque MISSION renvoie à un PROJET (case "-> PROJET" = n° du projet),
+%            chaque PROJET renvoie à un BUT (case "-> BUT" = n° du but).
+% ------------------------------------------------------------------
+\documentclass[a4paper]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{helvet}
+\renewcommand{\familydefault}{\sfdefault}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usepackage[a4paper,left=1cm,right=1cm,top=1.1cm,bottom=1.1cm]{geometry}
+
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0pt}
+
+% --- Couleurs ------------------------------------------------------
+\definecolor{gold}{RGB}{209,163,78}
+\definecolor{navy}{RGB}{40,52,105}
+\definecolor{cream}{RGB}{244,233,207}
+\definecolor{paper}{RGB}{252,251,246}
+\definecolor{gridgray}{RGB}{160,160,150}
+
+% --- Une colonne -----------------------------------------------------
+%  #1 x de départ   #2 largeur   #3 nombre de lignes   #4 couleur de fond
+%  #5 titre EN      #6 titre FR   #7 demi-taille de la case à cocher
+%  #8 case de lien (1 = oui)      #9 nombre de lignes d'écriture par ligne
+\newcommand{\todocol}[9]{%
+  \pgfmathsetmacro{\rhC}{(12.6-1.45)/#3}
+  \fill[#4] (#1,-1.45) rectangle ({#1+#2},-12.6);
+  \node[anchor=west,align=left,inner sep=0,font=\fontsize{6}{7}\selectfont]
+    at ({#1+0.15},-1.1) {\textcolor{gold}{\bfseries #5}\\\textcolor{navy}{\bfseries #6}};
+  \foreach \ri in {1,...,#3}{%
+    \pgfmathsetmacro{\yt}{-1.45-(\ri-1)*\rhC}
+    \pgfmathsetmacro{\yc}{\yt-\rhC/#9+#7+0.07}
+    \pgfmathsetmacro{\xe}{#1+#2-0.15-0.7*#8}
+    % numéro + case à cocher
+    \node[inner sep=0,font=\fontsize{5.5}{6}\selectfont,text=navy!70] at ({#1+0.22},\yc) {\ri};
+    \draw[gridgray,line width=0.5pt] ({#1+0.45},{\yc-#7}) rectangle ({#1+0.45+2*#7},{\yc+#7});
+    % lignes d'écriture
+    \foreach \j in {1,...,#9}{%
+      \pgfmathsetmacro{\yy}{\yt-\j*\rhC/#9}
+      \ifnum\j=#9
+        \draw[gridgray,line width=0.4pt] ({#1+0.45+2*#7+0.12},\yy) -- (\xe,\yy);
+      \else
+        \draw[gridgray,dotted,line width=0.4pt] ({#1+0.45+2*#7+0.12},\yy) -- (\xe,\yy);
+      \fi
+    }
+    % case de lien vers l'échelle supérieure
+    \ifnum#8=1
+      \draw[gridgray,line width=0.5pt,rounded corners=1pt]
+        ({#1+#2-0.7},{\yc-0.11}) rectangle ({#1+#2-0.15},{\yc+0.11});
+    \fi
+  }
+}
+
+% --- Un panneau (19 cm x 12,6 cm) ------------------------------------
+\newcommand{\todopanel}{%
+\noindent\makebox[0pt][l]{%
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \fill[paper] (0,0) rectangle (19,-12.6);
+
+  % Colonnes : Missions | Projets | Buts
+  \todocol{0}{7.3}{15}{cream}{TASKS}{MISSIONS}{0.10}{1}{1}
+  \todocol{7.3}{6.3}{10}{paper}{PROJECTS}{PROJETS}{0.11}{1}{2}
+  \todocol{13.6}{5.4}{6}{cream}{GOALS}{BUTS}{0.14}{0}{3}
+
+  % Contour léger
+  \draw[gold!60,line width=0.4pt,rounded corners=2pt] (0,0) rectangle (19,-12.6);
+
+  % Lignes d'en-tête
+  \draw[navy,line width=0.4pt] (0,-0.75) -- (19,-0.75);
+  \draw[navy,line width=0.5pt] (0,-1.45) -- (19,-1.45);
+  % Séparateurs de colonnes
+  \draw[navy,line width=0.5pt] (7.3,-0.75) -- (7.3,-12.6);
+  \draw[navy,line width=0.5pt] (13.6,-0.75) -- (13.6,-12.6);
+
+  % Bandeau supérieur : titre, période, logo
+  \node[anchor=west,align=left,inner sep=0,font=\fontsize{5.5}{6.5}\selectfont]
+    at (0.15,-0.375) {\textcolor{gold}{\bfseries TO DO}\\\textcolor{navy}{\bfseries À FAIRE}};
+  \node[anchor=west,align=left,inner sep=0,font=\fontsize{5.5}{6.5}\selectfont]
+    at (2.3,-0.375) {\textcolor{gold}{PERIOD}\\\textcolor{navy}{PÉRIODE}};
+  \draw[gridgray,dotted,line width=0.5pt] (3.9,-0.52) -- (11.5,-0.52);
+  \node[anchor=east,inner sep=0,font=\fontsize{8}{9}\selectfont\bfseries,text=gold]
+    at (18.85,-0.375) {S\,U\,R\,F\ \textbf{\&}\ A\,R\,M\,O\,R\,I\,Q\,U\,E};
+
+  % Étiquettes des cases de lien
+  \node[anchor=east,align=right,inner sep=0,font=\fontsize{4.5}{5.5}\selectfont]
+    at (7.15,-1.1) {\textcolor{gold}{\bfseries $\rightarrow$ PROJECT}\\\textcolor{navy}{$\rightarrow$ PROJET}};
+  \node[anchor=east,align=right,inner sep=0,font=\fontsize{4.5}{5.5}\selectfont]
+    at (13.45,-1.1) {\textcolor{gold}{\bfseries $\rightarrow$ GOAL}\\\textcolor{navy}{$\rightarrow$ BUT}};
+\end{tikzpicture}}\par}
+
+\begin{document}
+\todopanel
+\vfill
+\todopanel
+\end{document}

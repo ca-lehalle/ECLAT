@@ -1,0 +1,116 @@
+% ------------------------------------------------------------------
+%  Agenda hebdomadaire "Surf \& Armorique" - 2 par page A4
+%  Compiler avec : pdflatex agenda_semaine.tex
+% ------------------------------------------------------------------
+\documentclass[a4paper]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{helvet}
+\renewcommand{\familydefault}{\sfdefault}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usepackage[a4paper,left=1cm,right=1cm,top=1.1cm,bottom=1.1cm]{geometry}
+
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0pt}
+
+% --- Couleurs ------------------------------------------------------
+\definecolor{gold}{RGB}{209,163,78}
+\definecolor{navy}{RGB}{40,52,105}
+\definecolor{cream}{RGB}{244,233,207}
+\definecolor{paper}{RGB}{252,251,246}
+\definecolor{gridgray}{RGB}{160,160,150}
+
+% --- Option : mettre des lignes horaires dans la colonne week-end ---
+\newif\ifweekendgrid
+\weekendgridfalse   % passer à \weekendgridtrue pour avoir des lignes
+
+% --- Un agenda (19 cm x 12,6 cm) ------------------------------------
+\newcommand{\agenda}{%
+\begin{tikzpicture}[x=1cm,y=1cm]
+  % Dimensions
+  \pgfmathsetmacro{\cw}{19/7}          % largeur d'une colonne
+  \pgfmathsetmacro{\H}{12.6}           % hauteur totale
+  \pgfmathsetmacro{\rh}{(12.6-2.3)/17} % hauteur d'une ligne horaire (7h..23h)
+  \pgfmathsetmacro{\ysep}{-2.3-8*\rh}  % séparation Samedi / Dimanche
+
+  % Fond
+  \fill[paper] (0,0) rectangle (19,-\H);
+
+  % Colonnes teintées : Missions, Mardi, Jeudi, Sam/Dim
+  \foreach \i in {0,2,4,6}{%
+    \fill[cream] ({\i*\cw},-1.6) rectangle ({(\i+1)*\cw},-\H);
+  }
+
+  % Contour très léger
+  \draw[gold!60,line width=0.4pt,rounded corners=2pt] (0,0) rectangle (19,-\H);
+
+  % Lignes d'en-tête : Mois / Semaine / jours
+  \draw[navy,line width=0.4pt] (0,-0.75) -- (19,-0.75);
+  \draw[navy,line width=0.4pt] (0,-1.6)  -- (19,-1.6);
+  \draw[navy,line width=0.5pt] (0,-2.3)  -- (19,-2.3);
+  % Séparateur Missions | jours
+  \draw[navy,line width=0.5pt] (\cw,-0.75) -- (\cw,-\H);
+
+  % Mois / Semaine
+  \node[anchor=west,align=left,inner sep=0,font=\fontsize{5.5}{6.5}\selectfont]
+    at (0.15,-0.375) {\textcolor{gold}{MONTH}\\\textcolor{navy}{MOIS}};
+  \node[anchor=west,align=left,inner sep=0,font=\fontsize{5.5}{6.5}\selectfont]
+    at (0.15,-1.175) {\textcolor{gold}{WEEK}\\\textcolor{navy}{SEMAINE}};
+
+  % Logo
+  \node[inner sep=0,font=\fontsize{8}{9}\selectfont\bfseries,text=gold]
+    at (9.5,-0.375) {S\,U\,R\,F\ \textbf{\&}\ A\,R\,M\,O\,R\,I\,Q\,U\,E};
+
+  % Étiquette Missions
+  \node[anchor=west,inner sep=0,font=\fontsize{6}{7}\selectfont\bfseries,text=navy]
+    at (0.15,-1.95) {MISSIONS};
+
+  % Noms des jours (Lun--Ven)
+  \foreach \i/\en/\fr in {1/MONDAY/LUNDI, 2/TUESDAY/MARDI, 3/WEDNESDAY/MERCREDI,
+                          4/THURSDAY/JEUDI, 5/FRIDAY/VENDREDI}{%
+    \node[anchor=west,align=left,inner sep=0,font=\fontsize{5}{6}\selectfont]
+      at ({\i*\cw+0.45},-1.95) {\textcolor{gold}{\bfseries\en}\\\textcolor{navy}{\fr}};
+  }
+
+  % Samedi (haut) / Dimanche (bas) dans la dernière colonne
+  \node[anchor=west,align=left,inner sep=0,font=\fontsize{5}{6}\selectfont]
+    at ({6*\cw+0.12},-1.95) {\textcolor{gold}{\bfseries SATURDAY}\\\textcolor{navy}{SAMEDI}};
+  \draw[navy,line width=0.5pt] ({6*\cw},\ysep) -- (19,\ysep);
+  \node[anchor=north west,align=left,inner sep=0,font=\fontsize{5}{6}\selectfont]
+    at ({6*\cw+0.12},{\ysep-0.12}) {\textcolor{gold}{\bfseries SUNDAY}\\\textcolor{navy}{DIMANCHE}};
+
+  % Lignes horaires 7h -> 23h
+  \foreach \h in {7,...,23}{%
+    \pgfmathsetmacro{\yy}{-2.3-(\h-6.5)*\rh}
+    % Missions : case à cocher + ligne pointillée
+    \draw[gridgray,line width=0.5pt] (0.12,{\yy-0.1}) rectangle (0.32,{\yy+0.1});
+    \draw[gridgray,dotted,line width=0.4pt] (0.45,\yy) -- ({\cw-0.05},\yy);
+    % Jours Lun--Ven : heure + ligne pointillée
+    \foreach \i in {1,...,5}{%
+      \node[inner sep=0,font=\fontsize{5.5}{6}\selectfont,text=navy!75]
+        at ({\i*\cw+0.2},\yy) {\h};
+      \draw[gridgray,dotted,line width=0.4pt] ({\i*\cw+0.4},\yy) -- ({(\i+1)*\cw-0.05},\yy);
+    }
+    \ifweekendgrid
+      \draw[gridgray,dotted,line width=0.4pt] ({6*\cw+0.12},\yy) -- (18.95,\yy);
+    \fi
+  }
+
+  % Traits pleins à 12h et 18h (Lun--Ven)
+  \foreach \h in {12,18}{%
+    \pgfmathsetmacro{\yy}{-2.3-(\h-6.5)*\rh}
+    \foreach \i in {1,...,5}{%
+      \draw[navy,line width=0.6pt] ({\i*\cw+0.4},\yy) -- ({(\i+1)*\cw},\yy);
+    }
+  }
+\end{tikzpicture}%
+}
+
+\begin{document}
+\noindent\makebox[0pt][l]{\agenda}\par
+\vfill
+\noindent\makebox[0pt][l]{\agenda}\par
+\end{document}
